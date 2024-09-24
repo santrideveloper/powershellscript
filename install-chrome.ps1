@@ -4,20 +4,29 @@ $chromeInstallerUrl = "https://dl.google.com/chrome/install/latest/chrome_instal
 # Lokasi penyimpanan sementara untuk installer
 $installerPath = "$env:TEMP\chrome_installer.exe"
 
-# Fungsi untuk menampilkan progress
+# Fungsi untuk menampilkan progress saat mengunduh
 function Download-WithProgress {
     param (
         [string]$url,
         [string]$outputPath
     )
 
-    # Menggunakan Invoke-WebRequest dengan -OutFile dan menampilkan progress
-    $webRequest = Invoke-WebRequest -Uri $url -OutFile $outputPath -UseBasicP -ProgressVariable progress
+    # Menggunakan Invoke-WebRequest dengan -OutFile untuk mengunduh file
+    $webRequest = Invoke-WebRequest -Uri $url -OutFile $outputPath -UseBasicP
 
-    # Menampilkan progress
-    while ($progress.Status -ne "Completed") {
-        Write-Progress -Status $progress.Status -CurrentOperation $progress.Operation -PercentComplete $progress.PercentComplete
-        Start-Sleep -Milliseconds 100
+    # Jika file berhasil diunduh, tampilkan progress
+    if ($webRequest.StatusCode -eq 200) {
+        $fileInfo = Get-Item $outputPath
+        $fileSize = $fileInfo.Length
+        $bytesReceived = 0
+
+        # Menampilkan progress
+        while ($bytesReceived -lt $fileSize) {
+            $bytesReceived = (Get-Item $outputPath).Length
+            $percentComplete = [math]::Round(($bytesReceived / $fileSize) * 100)
+            Write-Progress -Status "Downloading..." -CurrentOperation "Downloading $($fileInfo.Name)" -PercentComplete $percentComplete
+            Start-Sleep -Milliseconds 100
+        }
     }
 }
 
