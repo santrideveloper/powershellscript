@@ -11,22 +11,19 @@ function Download-WithProgress {
         [string]$outputPath
     )
 
-    # Menggunakan Invoke-WebRequest dengan -OutFile untuk mengunduh file
-    $webRequest = Invoke-WebRequest -Uri $url -OutFile $outputPath -UseBasicP
+    # Membuat web client untuk mengunduh file
+    $webClient = New-Object System.Net.WebClient
+    $webClient.DownloadProgressChanged += {
+        # Menampilkan progress setiap kali ada perubahan
+        Write-Progress -Status "Downloading..." -CurrentOperation "$($_.UserState)" -PercentComplete $_.ProgressPercentage
+    }
 
-    # Jika file berhasil diunduh, tampilkan progress
-    if ($webRequest.StatusCode -eq 200) {
-        $fileInfo = Get-Item $outputPath
-        $fileSize = $fileInfo.Length
-        $bytesReceived = 0
-
-        # Menampilkan progress
-        while ($bytesReceived -lt $fileSize) {
-            $bytesReceived = (Get-Item $outputPath).Length
-            $percentComplete = [math]::Round(($bytesReceived / $fileSize) * 100)
-            Write-Progress -Status "Downloading..." -CurrentOperation "Downloading $($fileInfo.Name)" -PercentComplete $percentComplete
-            Start-Sleep -Milliseconds 100
-        }
+    # Mengunduh file
+    $webClient.DownloadFileAsync($url, $outputPath, "Downloading Chrome Installer")
+    
+    # Menunggu hingga pengunduhan selesai
+    while ($webClient.IsBusy) {
+        Start-Sleep -Milliseconds 100
     }
 }
 
