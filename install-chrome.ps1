@@ -1,39 +1,26 @@
-# URL untuk mengunduh Google Chrome installer
-$chromeInstallerUrl = "https://dl.google.com/chrome/install/latest/chrome_installer.exe"
+# Definisikan variabel untuk URL download Chrome
+$url = "https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7BD7A8B8B8-9A86-4DDE-8FCA-4614A8A28B25%7D%26lang%3Den%26browser%3D4%26usagestats%3D1%26appname%3DGoogle%2520Chrome%26needsadmin%3Dprefers%26brand%3DGCEB%26dmg%3D1%26ap%3Dx64-stable-statsdef_1%26brand%3DGCEB/dmg/GCEB%2FGoogleChromeEnterpriseBundle%2F102.0.5005.63%2FGoogleChromeEnterpriseBundle64.zip"
 
-# Lokasi penyimpanan sementara untuk installer
-$installerPath = "$env:TEMP\chrome_installer.exe"
+# Definisikan direktori untuk menyimpan file download
+$downloadDir = "$env:USERPROFILE\Downloads"
 
-# Fungsi untuk menampilkan progress saat mengunduh
-function Download-WithProgress {
-    param (
-        [string]$url,
-        [string]$outputPath
-    )
-
-    # Membuat web client untuk mengunduh file
-    $webClient = New-Object System.Net.WebClient
-    $webClient.DownloadProgressChanged += {
-        # Menampilkan progress setiap kali ada perubahan
-        Write-Progress -Status "Downloading..." -CurrentOperation "$($_.UserState)" -PercentComplete $_.ProgressPercentage
-    }
-
-    # Mengunduh file
-    $webClient.DownloadFileAsync($url, $outputPath, "Downloading Chrome Installer")
-    
-    # Menunggu hingga pengunduhan selesai
-    while ($webClient.IsBusy) {
-        Start-Sleep -Milliseconds 100
-    }
+# Buat direktori download jika belum ada
+if (!(Test-Path -Path $downloadDir)) {
+    New-Item -ItemType Directory -Path $downloadDir
 }
 
-# Mengunduh installer Google Chrome dengan progress
-Download-WithProgress -url $chromeInstallerUrl -outputPath $installerPath
+# Download file installer Chrome
+$fileName = "GoogleChromeEnterpriseBundle64.zip"
+$filePath = Join-Path -Path $downloadDir -ChildPath $fileName
+Invoke-WebRequest -Uri $url -OutFile $filePath
 
-# Menjalankan installer secara diam-diam (silent install)
-Start-Process -FilePath $installerPath -Args "/silent /install" -Wait
+# Ekstrak file installer Chrome
+$extractDir = Join-Path -Path $downloadDir -ChildPath "Chrome"
+if (!(Test-Path -Path $extractDir)) {
+    New-Item -ItemType Directory -Path $extractDir
+}
+Expand-Archive -Path $filePath -DestinationPath $extractDir -Force
 
-# Menghapus installer setelah instalasi selesai
-Remove-Item $installerPath
-
-Write-Host "Google Chrome telah berhasil diinstal."
+# Jalankan file installer Chrome
+$installerPath = Join-Path -Path $extractDir -ChildPath "GoogleChromeEnterpriseBundle64\Setup.exe"
+Start-Process -FilePath $installerPath -ArgumentList "/silent /install"
