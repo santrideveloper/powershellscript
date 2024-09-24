@@ -1,4 +1,3 @@
-Set-Alias chromeInstall "iex (irm 'https://raw.githubusercontent.com/santrideveloper/powershellscript/main/install-chrome.ps1')"
 # URL untuk mengunduh Google Chrome installer
 $chromeInstallerUrl = "https://dl.google.com/chrome/install/latest/chrome_installer.exe"
 
