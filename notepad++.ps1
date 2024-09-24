@@ -1,12 +1,13 @@
-# Menentukan URL dari installer Notepad++
-$notepadPlusPlusUrl = "https://github.com/notepad-plus-plus/notepad-plus-plus/releases/latest/download/npp.x.x.Installer.exe"
+# Menentukan URL dari installer Notepad++ (ganti '8.4.6' dengan versi terbaru)
+$notepadPlusPlusVersion = "8.4.6"
+$notepadPlusPlusUrl = "https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v$notepadPlusPlusVersion/npp.$notepadPlusPlusVersion.Installer.exe"
 
 # Menentukan lokasi untuk menyimpan installer
 $installerPath = "$env:TEMP\npp_installer.exe"
 
 # Mengunduh installer
 Write-Host "Mengunduh Notepad++ dari $notepadPlusPlusUrl..." -ForegroundColor Cyan
-Invoke-WebRequest -Uri $notepadPlusPlusUrl -OutFile $installerPath
+Invoke-WebRequest -Uri $notepadPlusPlusUrl -OutFile $installerPath -ErrorAction Stop
 
 # Memeriksa apakah unduhan berhasil
 if (Test-Path $installerPath) {
