@@ -4,8 +4,25 @@ $chromeInstallerUrl = "https://dl.google.com/chrome/install/latest/chrome_instal
 # Lokasi penyimpanan sementara untuk installer
 $installerPath = "$env:TEMP\chrome_installer.exe"
 
-# Mengunduh installer Google Chrome
-Invoke-WebRequest -Uri $chromeInstallerUrl -OutFile $installerPath
+# Fungsi untuk menampilkan progress
+function Download-WithProgress {
+    param (
+        [string]$url,
+        [string]$outputPath
+    )
+
+    # Menggunakan Invoke-WebRequest dengan -OutFile dan menampilkan progress
+    $webRequest = Invoke-WebRequest -Uri $url -OutFile $outputPath -UseBasicP -ProgressVariable progress
+
+    # Menampilkan progress
+    while ($progress.Status -ne "Completed") {
+        Write-Progress -Status $progress.Status -CurrentOperation $progress.Operation -PercentComplete $progress.PercentComplete
+        Start-Sleep -Milliseconds 100
+    }
+}
+
+# Mengunduh installer Google Chrome dengan progress
+Download-WithProgress -url $chromeInstallerUrl -outputPath $installerPath
 
 # Menjalankan installer secara diam-diam (silent install)
 Start-Process -FilePath $installerPath -Args "/silent /install" -Wait
