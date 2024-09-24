@@ -1,6 +1,5 @@
 # Menentukan URL dari installer Notepad++ (ganti '8.4.6' dengan versi terbaru)
-$notepadPlusPlusVersion = "8.4.6"
-$notepadPlusPlusUrl = "https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v$notepadPlusPlusVersion/npp.$notepadPlusPlusVersion.Installer.exe"
+$notepadPlusPlusUrl = "https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.7/npp.8.7.Installer.x64.exe"
 
 # Menentukan lokasi untuk menyimpan installer
 $installerPath = "$env:TEMP\npp_installer.exe"
